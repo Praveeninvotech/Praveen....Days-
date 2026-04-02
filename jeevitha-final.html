@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeevitha</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Raleway:wght@100;200;300&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:#07030a;font-family:'Raleway',sans-serif;color:#fdf0f3;overflow-x:hidden;min-height:100vh;}
+
+/* BG */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+background:radial-gradient(ellipse at 15% 25%,rgba(180,30,60,.18) 0%,transparent 55%),
+radial-gradient(ellipse at 85% 70%,rgba(120,15,40,.14) 0%,transparent 50%);}
+
+/* HEARTS */
+#hc{position:fixed;inset:0;z-index:2;pointer-events:none;}
+
+/* MUSIC BTN */
+.mbtn{
+  position:fixed;bottom:28px;right:28px;z-index:300;
+  display:flex;flex-direction:column;align-items:flex-end;gap:8px;
+}
+.mbtn-circle{
+  width:52px;height:52px;border-radius:50%;
+  background:rgba(200,48,74,.15);border:1px solid rgba(200,48,74,.4);
+  color:#e8728a;font-size:1.4rem;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(10px);
+  transition:all .3s;box-shadow:0 0 20px rgba(200,48,74,.2);
+}
+.mbtn-circle:hover{background:rgba(200,48,74,.3);transform:scale(1.1);}
+.mbtn-circle.glow{animation:mglow 2s ease-in-out infinite;}
+@keyframes mglow{0%,100%{box-shadow:0 0 20px rgba(200,48,74,.3);}50%{box-shadow:0 0 40px rgba(200,48,74,.7);}}
+.mbtn-lbl{font-size:.55rem;letter-spacing:3px;text-transform:uppercase;color:rgba(232,114,138,.5);font-weight:200;}
+
+.mbar{display:flex;gap:3px;align-items:flex-end;height:16px;}
+.mbar span{width:3px;border-radius:2px;background:#e8728a;animation:bd .8s ease-in-out infinite;}
+.mbar span:nth-child(1){height:8px;animation-delay:0s;}
+.mbar span:nth-child(2){height:14px;animation-delay:.15s;}
+.mbar span:nth-child(3){height:6px;animation-delay:.3s;}
+.mbar span:nth-child(4){height:12px;animation-delay:.1s;}
+.mbar.off span{animation:none;height:4px!important;opacity:.3;}
+@keyframes bd{0%,100%{transform:scaleY(1);}50%{transform:scaleY(.3);}}
+
+.mpanel{
+  display:none;flex-direction:column;align-items:flex-end;gap:8px;
+  background:rgba(7,3,10,.9);border:1px solid rgba(200,48,74,.2);
+  border-radius:12px;padding:14px 16px;backdrop-filter:blur(16px);min-width:200px;
+}
+.mpanel.open{display:flex;}
+.mpanel-title{font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:#e8728a;font-weight:200;}
+.mfile-btn{
+  background:rgba(200,48,74,.12);border:1px dashed rgba(200,48,74,.3);
+  border-radius:8px;padding:8px 16px;font-size:.6rem;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(232,114,138,.7);cursor:pointer;
+  position:relative;font-family:'Raleway',sans-serif;font-weight:200;
+  transition:all .2s;width:100%;text-align:center;
+}
+.mfile-btn:hover{background:rgba(200,48,74,.25);color:#e8728a;}
+.mfile-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.mnow{font-size:.55rem;letter-spacing:2px;color:rgba(232,114,138,.4);font-style:italic;
+max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none;}
+.mnow.show{display:block;}
+
+/* HERO */
+.hero{
+  position:relative;z-index:10;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:80px 40px 60px;
+}
+.ring{
+  position:absolute;border-radius:50%;border:1px solid rgba(200,48,74,.07);
+  top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;
+}
+.ring1{width:380px;height:380px;animation:rot 30s linear infinite;}
+.ring2{width:580px;height:580px;animation:rot 50s linear infinite reverse;border-color:rgba(200,48,74,.04);}
+@keyframes rot{to{transform:translate(-50%,-50%) rotate(360deg);}}
+
+.eyebrow{
+  font-size:.58rem;letter-spacing:8px;text-transform:uppercase;
+  color:#c8304a;font-weight:200;margin-bottom:24px;
+  display:flex;align-items:center;gap:14px;
+  animation:fdown 1s ease .2s both;
+}
+.eyebrow::before,.eyebrow::after{content:'';width:30px;height:1px;background:rgba(200,48,74,.5);}
+
+/* BIG NAME */
+.name-wrap{position:relative;display:inline-block;margin-bottom:16px;}
+.name-back{
+  font-family:'Cormorant Garamond',serif;font-weight:300;
+  font-size:clamp(5rem,16vw,11rem);line-height:.9;letter-spacing:-2px;
+  color:transparent;-webkit-text-stroke:1px rgba(253,240,243,.12);
+  user-select:none;
+}
+.name-front{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
+  font-size:clamp(5rem,16vw,11rem);line-height:.9;letter-spacing:-2px;
+  color:#fdf0f3;
+  position:absolute;top:0;left:0;right:0;text-align:center;
+  clip-path:polygon(0 0,0 0,0 100%,0 100%);
+  animation:wipe 2s cubic-bezier(.77,0,.18,1) .5s forwards;
+  text-shadow:0 0 80px rgba(200,48,74,.3);
+}
+@keyframes wipe{to{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);}}
+
+.lastname{
+  font-weight:100;font-size:clamp(.8rem,2vw,1rem);
+  letter-spacing:10px;text-transform:uppercase;
+  color:rgba(253,240,243,.3);margin-bottom:28px;
+  animation:fup 1s ease 1.2s both;
+}
+
+/* DIVIDER */
+.divider{display:flex;align-items:center;gap:16px;margin-bottom:28px;animation:fin 1s ease 1.4s both;}
+.divider::before,.divider::after{content:'';width:60px;height:1px;background:rgba(212,168,83,.4);}
+.dv-heart{color:#c8304a;font-size:.75rem;letter-spacing:6px;}
+
+/* QUOTES */
+.quote-box{max-width:460px;margin:0 auto;min-height:90px;animation:fup 1s ease 1.6s both;}
+.qt{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
+  font-size:clamp(1rem,2.5vw,1.25rem);line-height:1.75;
+  color:rgba(253,240,243,.55);text-align:center;
+  transition:opacity .5s,transform .5s;
+}
+.qt.out{opacity:0;transform:translateY(-8px);}
+.qt.in{opacity:1;transform:translateY(0);}
+.qa{font-size:.58rem;letter-spacing:4px;text-transform:uppercase;color:rgba(200,48,74,.45);font-weight:200;margin-top:8px;transition:opacity .5s;}
+.qdots{display:flex;gap:6px;justify-content:center;margin-top:12px;}
+.qdot{width:5px;height:5px;border-radius:50%;background:rgba(200,48,74,.2);cursor:pointer;transition:all .3s;}
+.qdot.on{background:#c8304a;transform:scale(1.3);}
+
+/* SCROLL HINT */
+.scroll-hint{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+  animation:fup 1s ease 2s both;
+}
+.scroll-hint span{font-size:.52rem;letter-spacing:4px;text-transform:uppercase;color:rgba(200,48,74,.4);font-weight:200;}
+.sline{width:1px;height:44px;background:linear-gradient(to bottom,#c8304a,transparent);animation:sp 2s ease-in-out infinite;}
+@keyframes sp{0%,100%{opacity:.5;transform:scaleY(1);}50%{opacity:1;transform:scaleY(1.15);}}
+
+/* PHOTOS SECTION */
+.psec{position:relative;z-index:10;padding:0 40px 80px;}
+.sec-hdr{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-top:40px;}
+.sec-hdr span{font-size:.55rem;letter-spacing:6px;text-transform:uppercase;color:rgba(200,48,74,.4);font-weight:200;}
+.sec-hdr::after{content:'';flex:1;height:1px;background:linear-gradient(to right,rgba(200,48,74,.2),transparent);}
+
+/* GRID */
+.pgrid{
+  display:grid;
+  grid-template-columns:1.5fr 1fr 1fr;
+  grid-template-rows:380px 270px;
+  gap:10px;
+}
+.pc:nth-child(1){grid-column:1;grid-row:1/3;}
+.pc:nth-child(2){grid-column:2;grid-row:1;}
+.pc:nth-child(3){grid-column:3;grid-row:1;}
+.pc:nth-child(4){grid-column:2;grid-row:2;}
+.pc:nth-child(5){grid-column:3;grid-row:2;}
+
+.pc{
+  position:relative;overflow:hidden;cursor:pointer;
+  background:rgba(30,8,15,.8);border:1px solid rgba(200,48,74,.08);border-radius:4px;
+  opacity:0;transform:translateY(36px) scale(.97);
+  transition:border-color .4s,box-shadow .4s;
+}
+.pc.show{animation:cin .8s cubic-bezier(.22,.68,0,1.1) forwards;}
+.pc:nth-child(2).show{animation-delay:.1s;}
+.pc:nth-child(3).show{animation-delay:.2s;}
+.pc:nth-child(4).show{animation-delay:.25s;}
+.pc:nth-child(5).show{animation-delay:.3s;}
+@keyframes cin{to{opacity:1;transform:translateY(0) scale(1);}}
+
+.pc:hover{border-color:rgba(200,48,74,.35);box-shadow:0 0 40px rgba(200,48,74,.1),0 20px 60px rgba(0,0,0,.5);z-index:20;}
+
+.pc img{width:100%;height:100%;object-fit:cover;display:block;
+filter:brightness(.8) saturate(.9);
+transition:transform 1s cubic-bezier(.25,.46,.45,.94),filter .6s;}
+.pc:hover img{transform:scale(1.1) rotate(.4deg);filter:brightness(.95) saturate(1.15);}
+
+.pc::after{content:'';position:absolute;inset:0;pointer-events:none;
+background:linear-gradient(to top,rgba(7,3,10,.8) 0%,transparent 60%);z-index:1;}
+
+.glow{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(200,48,74,.08) 0%,transparent 70%);
+opacity:0;z-index:2;pointer-events:none;transition:opacity .4s;}
+.pc:hover .glow{opacity:1;}
+
+.pcinfo{position:absolute;bottom:0;left:0;right:0;z-index:3;padding:18px 20px;
+transform:translateY(10px);transition:transform .4s;}
+.pc:hover .pcinfo{transform:translateY(0);}
+.pcnum{font-size:.55rem;letter-spacing:4px;color:#c8304a;font-weight:200;
+opacity:0;transform:translateY(5px);transition:opacity .3s .05s,transform .3s .05s;}
+.pc:hover .pcnum{opacity:1;transform:translateY(0);}
+.pcact{font-size:.6rem;letter-spacing:3px;text-transform:uppercase;font-weight:200;
+color:rgba(253,240,243,.6);opacity:0;transform:translateY(5px);
+transition:opacity .3s .1s,transform .3s .1s;display:flex;align-items:center;gap:6px;margin-top:4px;}
+.pc:hover .pcact{opacity:1;transform:translateY(0);}
+.pcact::after{content:'→';color:#c8304a;}
+
+.pcheart{position:absolute;top:14px;right:14px;z-index:3;font-size:1.1rem;
+color:rgba(200,48,74,0);transition:color .3s,transform .3s;}
+.pc:hover .pcheart{color:rgba(200,48,74,.7);transform:scale(1.2);animation:hb .8s ease-in-out infinite;}
+@keyframes hb{0%,100%{transform:scale(1.2);}50%{transform:scale(1.4);}}
+
+/* UPLOAD */
+.uz{
+  width:100%;height:100%;min-height:180px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  color:rgba(200,48,74,.2);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;font-weight:200;
+  position:relative;cursor:pointer;border:1px dashed rgba(200,48,74,.1);border-radius:4px;transition:all .3s;
+}
+.uz:hover{color:rgba(232,114,138,.6);background:rgba(200,48,74,.04);border-color:rgba(200,48,74,.3);}
+.uz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.uz svg{width:22px;height:22px;stroke:currentColor;}
+.uz-h{font-size:1.4rem;opacity:.5;}
+
+/* QUOTE BANNER */
+.qbanner{
+  position:relative;z-index:10;text-align:center;padding:50px 40px;
+  border-top:1px solid rgba(200,48,74,.1);border-bottom:1px solid rgba(200,48,74,.1);
+}
+.qbt{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
+font-size:clamp(1.1rem,3vw,1.8rem);line-height:1.65;color:rgba(253,240,243,.45);max-width:560px;margin:0 auto 10px;}
+.qba{font-size:.58rem;letter-spacing:5px;text-transform:uppercase;color:rgba(200,48,74,.35);font-weight:200;}
+
+/* FOOTER */
+footer{position:relative;z-index:10;padding:32px 40px;
+display:flex;align-items:center;justify-content:space-between;}
+.fn{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
+font-size:1.4rem;color:rgba(253,240,243,.25);letter-spacing:2px;}
+.fh{font-size:.9rem;color:rgba(200,48,74,.25);letter-spacing:8px;}
+.fd{font-size:.55rem;letter-spacing:4px;text-transform:uppercase;color:rgba(200,48,74,.2);font-weight:200;}
+
+/* LIGHTBOX */
+.lb{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;}
+.lb.on{display:flex;}
+.lbbg{position:absolute;inset:0;background:rgba(4,1,5,.97);cursor:pointer;animation:fin .3s ease;} 
+.lbbg::before{content:'';position:absolute;inset:0;
+background:radial-gradient(ellipse at 30% 40%,rgba(140,20,45,.1) 0%,transparent 50%),
+radial-gradient(ellipse at 70% 60%,rgba(100,10,30,.08) 0%,transparent 50%);}
+.lbinner{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:20px;
+animation:lbin .5s cubic-bezier(.22,.68,0,1.1) both;}
+.lbframe{position:relative;padding:2px;
+background:linear-gradient(135deg,rgba(200,48,74,.4),rgba(212,168,83,.2),rgba(200,48,74,.4));border-radius:3px;}
+.lbframe::after{content:'';position:absolute;inset:-6px;border:1px solid rgba(200,48,74,.15);
+border-radius:6px;animation:lbp 2.5s ease-in-out infinite;}
+@keyframes lbp{0%,100%{opacity:.5;transform:scale(1);}50%{opacity:1;transform:scale(1.01);}}
+.lbframe img{max-width:78vw;max-height:70vh;object-fit:contain;display:block;border-radius:2px;}
+.lbch{position:absolute;color:rgba(200,48,74,.35);font-size:.8rem;animation:cp 2s ease-in-out infinite;}
+.lbch:nth-child(1){top:-20px;left:-20px;}
+.lbch:nth-child(2){top:-20px;right:-20px;animation-delay:.5s;}
+.lbch:nth-child(3){bottom:-20px;left:-20px;animation-delay:1s;}
+.lbch:nth-child(4){bottom:-20px;right:-20px;animation-delay:1.5s;}
+@keyframes cp{0%,100%{transform:scale(1);opacity:.35;}50%{transform:scale(1.3);opacity:.7;}}
+.lbcap{text-align:center;}
+.lbcap-n{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:1rem;color:rgba(232,114,138,.5);letter-spacing:3px;}
+.lbcap-i{font-size:.55rem;letter-spacing:5px;text-transform:uppercase;color:rgba(253,240,243,.2);margin-top:5px;}
+.lbclose{position:fixed;top:26px;right:32px;background:rgba(200,48,74,.1);border:1px solid rgba(200,48,74,.25);
+color:rgba(232,114,138,.6);font-size:.58rem;letter-spacing:4px;text-transform:uppercase;
+font-family:'Raleway',sans-serif;font-weight:200;padding:7px 18px;border-radius:100px;
+cursor:pointer;z-index:20;transition:all .2s;backdrop-filter:blur(10px);}
+.lbclose:hover{background:rgba(200,48,74,.25);color:#e8728a;}
+.lbnav{position:fixed;top:50%;transform:translateY(-50%);background:none;border:none;
+color:rgba(200,48,74,.3);font-size:3.5rem;cursor:pointer;padding:20px;z-index:20;
+font-family:'Cormorant Garamond',serif;font-weight:300;line-height:1;transition:color .2s,transform .3s;}
+.lbnav:hover{color:rgba(232,114,138,.9);}
+.lbprev{left:10px;}
+.lbprev:hover{transform:translateY(-50%) translateX(-6px);}
+.lbnext{right:10px;}
+.lbnext:hover{transform:translateY(-50%) translateX(6px);}
+
+/* ANIMS */
+@keyframes fdown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fin{from{opacity:0}to{opacity:1}}
+@keyframes lbin{from{opacity:0;transform:scale(.93) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+/* MOBILE */
+@media(max-width:680px){
+  .hero{padding:60px 24px 50px;}
+  .pgrid{grid-template-columns:1fr 1fr;grid-template-rows:auto;}
+  .pc:nth-child(1){grid-column:1/3;grid-row:auto;height:240px;}
+  .pc:nth-child(2),.pc:nth-child(3),.pc:nth-child(4),.pc:nth-child(5){grid-column:span 1;height:160px;}
+  .psec{padding:0 16px 60px;}
+  .lbnav{display:none;}
+  .lbframe img{max-width:90vw;max-height:65vh;}
+  footer{flex-direction:column;gap:12px;text-align:center;padding:24px;}
+  .mbtn{bottom:18px;right:18px;}
+}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<canvas id="hc"></canvas>
+
+<!-- MUSIC -->
+<div class="mbtn">
+  <div class="mpanel" id="mpanel">
+    <div class="mpanel-title">♪ Add Your Song</div>
+    <div class="mfile-btn">
+      <input type="file" accept="audio/*" onchange="loadSong(this)">
+      Upload MP3 / Song
+    </div>
+    <div class="mnow" id="mnow"></div>
+  </div>
+  <div class="mbar off" id="mbar"><span></span><span></span><span></span><span></span></div>
+  <div class="mbtn-circle" id="mcircle" onclick="togglePanel()">♪</div>
+  <div class="mbtn-lbl" id="mlbl">Add Music</div>
+</div>
+
+<audio id="aud" loop></audio>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="ring ring1"></div>
+  <div class="ring ring2"></div>
+  <div class="eyebrow">Portfolio</div>
+  <div class="name-wrap">
+    <div class="name-back">Jeevitha</div>
+    <div class="name-front">Jeevitha</div>
+  </div>
+  <div class="lastname">Praveen</div>
+  <div class="divider"><span class="dv-heart">♥ ♥ ♥</span></div>
+  <div class="quote-box">
+    <div class="qt in" id="qt"></div>
+    <div class="qa" id="qa"></div>
+    <div class="qdots" id="qdots"></div>
+  </div>
+  <div class="scroll-hint" onclick="document.querySelector('.psec').scrollIntoView({behavior:'smooth'})">
+    <span>View Gallery</span>
+    <div class="sline"></div>
+  </div>
+</section>
+
+<!-- PHOTOS -->
+<section class="psec">
+  <div class="sec-hdr"><span>Photographs</span></div>
+  <div class="pgrid">
+
+    <div class="pc" id="p0">
+      <div class="uz"><input type="file" accept="image/*" onchange="loadPic(this,0)">
+        <span class="uz-h">♥</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Add Photo</span>
+      </div>
+      <div class="glow"></div>
+    </div>
+
+    <div class="pc" id="p1">
+      <div class="uz"><input type="file" accept="image/*" onchange="loadPic(this,1)">
+        <span class="uz-h">♥</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Add Photo</span>
+      </div>
+      <div class="glow"></div>
+    </div>
+
+    <div class="pc" id="p2">
+      <div class="uz"><input type="file" accept="image/*" onchange="loadPic(this,2)">
+        <span class="uz-h">♥</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Add Photo</span>
+      </div>
+      <div class="glow"></div>
+    </div>
+
+    <div class="pc" id="p3">
+      <div class="uz"><input type="file" accept="image/*" onchange="loadPic(this,3)">
+        <span class="uz-h">♥</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Add Photo</span>
+      </div>
+      <div class="glow"></div>
+    </div>
+
+    <div class="pc" id="p4">
+      <div class="uz"><input type="file" accept="image/*" onchange="loadPic(this,4)">
+        <span class="uz-h">♥</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>Add Photo</span>
+      </div>
+      <div class="glow"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- QUOTE BANNER -->
+<div class="qbanner">
+  <div class="qbt">"She wore her scars as her best outfit. It was a dress made of fire and she was not afraid."</div>
+  <div class="qba">— Jeevitha Praveen</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fn">Jeevitha Praveen</div>
+  <div class="fh">♥ ♥ ♥</div>
+  <div class="fd">jeevithapraveen.in</div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb">
+  <div class="lbbg" onclick="closeLb()"></div>
+  <button class="lbclose" onclick="closeLb()">Close ✕</button>
+  <button class="lbnav lbprev" onclick="navLb(-1)">&#8249;</button>
+  <button class="lbnav lbnext" onclick="navLb(1)">&#8250;</button>
+  <div class="lbinner">
+    <div class="lbframe">
+      <span class="lbch">♥</span>
+      <span class="lbch">♥</span>
+      <span class="lbch">♥</span>
+      <span class="lbch">♥</span>
+      <img id="lbimg" src="" alt="">
+    </div>
+    <div class="lbcap">
+      <div class="lbcap-n">Jeevitha Praveen</div>
+      <div class="lbcap-i" id="lbnum">01 of 05</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// HEARTS
+var cv = document.getElementById('hc');
+var cx = cv.getContext('2d');
+var W, H, HL = [];
+function rsz(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
+rsz(); window.addEventListener('resize', rsz);
+
+function MkH(init){
+  this.reset = function(s){
+    this.x = Math.random()*W;
+    this.y = s ? Math.random()*H : H+20;
+    this.sz = Math.random()*15+5;
+    this.sp = Math.random()*.8+.25;
+    this.op = Math.random()*.2+.04;
+    this.wb = Math.random()*Math.PI*2;
+    this.ws = Math.random()*.018+.004;
+    this.dr = (Math.random()-.5)*.6;
+  };
+  this.reset(init);
+  this.draw = function(){
+    var x=this.x,y=this.y,s=this.sz;
+    cx.save(); cx.globalAlpha=this.op;
+    cx.fillStyle='rgba(200,60,90,1)';
+    cx.beginPath();
+    cx.moveTo(x,y);
+    cx.bezierCurveTo(x,y-s*.3,x-s*.5,y-s*.8,x-s*.5,y-s*.5);
+    cx.bezierCurveTo(x-s*.5,y-s*1.1,x,y-s*1.1,x,y-s*.7);
+    cx.bezierCurveTo(x,y-s*1.1,x+s*.5,y-s*1.1,x+s*.5,y-s*.5);
+    cx.bezierCurveTo(x+s*.5,y-s*.8,x,y-s*.3,x,y);
+    cx.fill(); cx.restore();
+  };
+  this.up = function(){
+    this.wb += this.ws;
+    this.x += Math.sin(this.wb)*this.dr;
+    this.y -= this.sp;
+    if(this.y < -20) this.reset(false);
+    this.draw();
+  };
+}
+for(var i=0;i<45;i++) HL.push(new MkH(true));
+function anim(){ cx.clearRect(0,0,W,H); HL.forEach(function(h){h.up();}); requestAnimationFrame(anim); }
+anim();
+
+// QUOTES
+var QS = [
+  {t:'"She is both hellfire and holy water, and the flavour you taste depends on how you treat her."', a:'— Sneha Vasudev'},
+  {t:'"She was a girl who knew how to be happy even when she was sad."', a:'— Marilyn Monroe'},
+  {t:'"Her soul is fierce. Her heart is brave. Her mind is strong."', a:'— Unknown'},
+  {t:'"She is not perfect but she is loyal, wild and worth it."', a:'— R.H. Sin'},
+  {t:'"She is a rare soul who shines brighter than the stars."', a:'— Unknown'},
+];
+var qi=0;
+var qtEl=document.getElementById('qt');
+var qaEl=document.getElementById('qa');
+var qdEl=document.getElementById('qdots');
+
+function setQ(i){
+  qtEl.className='qt out'; qaEl.style.opacity='0';
+  setTimeout(function(){
+    qi=i;
+    qtEl.textContent=QS[i].t;
+    qaEl.textContent=QS[i].a;
+    qtEl.className='qt in'; qaEl.style.opacity='1';
+    document.querySelectorAll('.qdot').forEach(function(d,j){
+      d.className='qdot'+(j===i?' on':'');
+    });
+  },500);
+}
+setQ(0);
+QS.forEach(function(_,i){
+  var d=document.createElement('div');
+  d.className='qdot'+(i===0?' on':'');
+  d.onclick=function(){setQ(i);};
+  qdEl.appendChild(d);
+});
+setInterval(function(){setQ((qi+1)%QS.length);},5000);
+
+// SCROLL REVEAL
+var pcs=document.querySelectorAll('.pc');
+var obs=new IntersectionObserver(function(ents){
+  ents.forEach(function(e){if(e.isIntersecting)e.target.classList.add('show');});
+},{threshold:.15});
+pcs.forEach(function(c){obs.observe(c);});
+
+// MUSIC
+var aud=document.getElementById('aud');
+var mcircle=document.getElementById('mcircle');
+var mlbl=document.getElementById('mlbl');
+var mbar=document.getElementById('mbar');
+var mpanel=document.getElementById('mpanel');
+var mnow=document.getElementById('mnow');
+var loaded=false, playing=false, popen=false;
+
+function togglePanel(){
+  if(loaded){
+    if(playing){ aud.pause(); playing=false; mbar.classList.add('off'); mcircle.classList.remove('glow'); mlbl.textContent='Paused'; }
+    else{ aud.play(); playing=true; mbar.classList.remove('off'); mcircle.classList.add('glow'); mlbl.textContent='Playing ♪'; }
+  } else {
+    popen=!popen;
+    mpanel.className='mpanel'+(popen?' open':'');
+  }
+}
+
+function loadSong(inp){
+  var f=inp.files[0]; if(!f)return;
+  aud.src=URL.createObjectURL(f);
+  aud.play();
+  loaded=true; playing=true;
+  mbar.classList.remove('off');
+  mcircle.classList.add('glow');
+  mcircle.textContent='♫';
+  mlbl.textContent='Playing ♪';
+  mnow.textContent=f.name.replace(/\.[^/.]+$/,'');
+  mnow.classList.add('show');
+  popen=false; mpanel.className='mpanel';
+}
+
+// PHOTOS
+var photos=[null,null,null,null,null];
+var cur=0;
+
+function loadPic(inp,i){
+  var f=inp.files[0]; if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(e){
+    photos[i]=e.target.result;
+    var c=document.getElementById('p'+i);
+    var n=String(i+1).padStart(2,'0');
+    c.innerHTML='<img src="'+e.target.result+'" alt="">'
+      +'<div class="glow"></div>'
+      +'<div class="pcheart">&#9829;</div>'
+      +'<div class="pcinfo"><div class="pcnum">&#8212; '+n+'</div><div class="pcact">View</div></div>';
+    c.onclick=function(){openLb(i);};
+    setTimeout(function(){c.classList.add('show');},50);
+  };
+  rd.readAsDataURL(f);
+}
+
+// LIGHTBOX
+function openLb(i){
+  if(!photos[i])return;
+  cur=i;
+  document.getElementById('lbimg').src=photos[i];
+  upNum();
+  document.getElementById('lb').className='lb on';
+  document.body.style.overflow='hidden';
+}
+function closeLb(){
+  document.getElementById('lb').className='lb';
+  document.body.style.overflow='';
+}
+function navLb(d){
+  for(var s=1;s<=5;s++){
+    var n=((cur+d*s)%5+5)%5;
+    if(photos[n]){openLb(n);return;}
+  }
+}
+function upNum(){
+  var l=photos.filter(Boolean).length;
+  document.getElementById('lbnum').textContent=String(cur+1).padStart(2,'0')+' of '+String(l).padStart(2,'0');
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape')closeLb();
+  if(e.key==='ArrowRight')navLb(1);
+  if(e.key==='ArrowLeft')navLb(-1);
+});
+</script>
+</body>
+</html>
